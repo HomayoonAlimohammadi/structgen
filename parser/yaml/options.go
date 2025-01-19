@@ -12,7 +12,28 @@ func (f optionFunc) apply(r *Parser) error {
 
 func WithAdvancedTypesEnabled() Option {
 	return optionFunc(func(r *Parser) error {
-		// r.advancedTypesEnabled = true
+		r.advancedTypesEnabled = true
+		return nil
+	})
+}
+
+func WithGenerateCmd(generateCmd string) Option {
+	return optionFunc(func(r *Parser) error {
+		r.generateCmd = generateCmd
+		return nil
+	})
+}
+
+func WithPkgName(pkgName string) Option {
+	return optionFunc(func(r *Parser) error {
+		r.pkgName = pkgName
+		return nil
+	})
+}
+
+func WithOutputDir(outputDir string) Option {
+	return optionFunc(func(r *Parser) error {
+		r.outputDir = outputDir
 		return nil
 	})
 }

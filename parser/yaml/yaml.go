@@ -21,26 +21,23 @@ const (
 
 type Parser struct {
 	advancedTypesEnabled bool
+	generateCmd          string
+	outputDir            string
+	pkgName              string
 }
 
-func New() (iface.Parser, error) {
-	// p := &Parser{}
-	// for _, opt := range opts {
-	// 	if err := opt.apply(p); err != nil {
-	// 		return nil, fmt.Errorf("failed to apply option: %w", err)
-	// 	}
-	// }
-
-	return &Parser{}, nil
-}
-
-func (p *Parser) Parse(filePath, outDir, pkgName string, opts ...iface.ParseOptions) (*recipe.StructsRecipe, error) {
-	var opt iface.ParseOptions
-	if len(opts) > 0 {
-		opt = opts[0]
+func New(opts ...Option) (iface.Parser, error) {
+	p := &Parser{}
+	for _, opt := range opts {
+		if err := opt.apply(p); err != nil {
+			return nil, fmt.Errorf("failed to apply option: %w", err)
+		}
 	}
-	p.handleParseOptions(opt)
 
+	return p, nil
+}
+
+func (p *Parser) Parse(filePath string) (*recipe.StructsRecipe, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -53,13 +50,13 @@ func (p *Parser) Parse(filePath, outDir, pkgName string, opts ...iface.ParseOpti
 
 	baseName := strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))
 	rootStructName := strcase.ToCamel(strings.ReplaceAll(strings.ReplaceAll(baseName, ".", "_"), "-", "_"))
-	outputFilePath := path.Join(outDir, fmt.Sprintf("%s.go", baseName))
+	outputFilePath := path.Join(p.outputDir, fmt.Sprintf("%s.go", baseName))
 
 	rcp := &recipe.StructsRecipe{
 		OutputFilePath: outputFilePath,
 		RootStructName: rootStructName,
-		PkgName:        pkgName,
-		GenerateCmd:    opt.GenerateCmd,
+		PkgName:        p.pkgName,
+		GenerateCmd:    p.generateCmd,
 		GenerateDate:   time.Now().Format(time.DateOnly),
 		ToolName:       toolName,
 		Imports: []recipe.Import{
@@ -148,10 +145,6 @@ func (p *Parser) parse(rcp *recipe.StructsRecipe, structName string, node *yaml.
 	}
 
 	rcp.Structs = append(rcp.Structs, stMeta)
-}
-
-func (p *Parser) handleParseOptions(opt iface.ParseOptions) {
-	p.advancedTypesEnabled = opt.AdvancedTypesEnabled
 }
 
 // infereTypeString infers the Go type of a YAML node
