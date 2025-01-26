@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -21,7 +20,7 @@ func main() {
 	}
 
 	if _, err := os.Stat(flg.outDir); os.IsNotExist(err) {
-		if err := os.Mkdir(flg.outDir, 0755); err != nil {
+		if err := os.MkdirAll(flg.outDir, 0755); err != nil {
 			log.Fatalf("Failed to create output directory: %v\n", err)
 		}
 	}
@@ -30,7 +29,6 @@ func main() {
 		parser.FileType(flg.inputType),
 		parser.ParserOptions{
 			AdvancedTypesEnabled: flg.advancedTypesEnabled,
-			GenerateCmd:          fmt.Sprintf("./%s %s", toolName, strings.Join(os.Args[1:], " ")),
 			PkgName:              flg.pkgName,
 			OutputDir:            flg.outDir,
 		},
@@ -45,7 +43,7 @@ func main() {
 			log.Fatalf("Failed to parse file %s: %v\n", inputFilePath, err)
 		}
 
-		if err := rcp.GenerateGoFile(templateFilePath); err != nil {
+		if err := rcp.GenerateGoFile(); err != nil {
 			log.Fatalf("Failed to generate Go file: %v\n", err)
 		}
 	}

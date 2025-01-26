@@ -10,9 +10,6 @@ func yamlFactory(opts ParserOptions) (iface.Parser, error) {
 	if opts.AdvancedTypesEnabled {
 		yamlOpts = append(yamlOpts, yaml.WithAdvancedTypesEnabled())
 	}
-	if opts.GenerateCmd != "" {
-		yamlOpts = append(yamlOpts, yaml.WithGenerateCmd(opts.GenerateCmd))
-	}
 	if opts.PkgName != "" {
 		yamlOpts = append(yamlOpts, yaml.WithPkgName(opts.PkgName))
 	}

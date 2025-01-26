@@ -8,20 +8,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/HomayoonAlimohammadi/structgen/parser/common"
 	"github.com/HomayoonAlimohammadi/structgen/parser/iface"
 	"github.com/HomayoonAlimohammadi/structgen/parser/recipe"
 	"github.com/iancoleman/strcase"
 	"gopkg.in/yaml.v3"
 )
 
-const (
-	toolName               = "CHART_VALUES_STRUCT_GENERATOR"
-	rootStructDocStringFmt = "// %s represents the values of the %s chart"
-)
-
 type Parser struct {
 	advancedTypesEnabled bool
-	generateCmd          string
 	outputDir            string
 	pkgName              string
 }
@@ -56,21 +51,14 @@ func (p *Parser) Parse(filePath string) (*recipe.StructsRecipe, error) {
 		OutputFilePath: outputFilePath,
 		RootStructName: rootStructName,
 		PkgName:        p.pkgName,
-		GenerateCmd:    p.generateCmd,
 		GenerateDate:   time.Now().Format(time.DateOnly),
-		ToolName:       toolName,
+		ToolName:       common.ToolName,
 		Imports: []recipe.Import{
 			{
 				Path: "fmt",
 			},
 			{
 				Path: "encoding/json",
-			},
-			{
-				Path: "reflect",
-			},
-			{
-				Path: "strings",
 			},
 		},
 	}
@@ -84,7 +72,7 @@ func (p *Parser) Parse(filePath string) (*recipe.StructsRecipe, error) {
 		return nil, fmt.Errorf("empty file %s", filePath)
 	}
 
-	docString := fmt.Sprintf(rootStructDocStringFmt, rootStructName, filePath)
+	docString := fmt.Sprintf(common.RootStructDocStringFmt, rootStructName, filePath)
 	p.parse(rcp, rootStructName, rootNode.Content[0], docString, true)
 
 	return rcp, nil

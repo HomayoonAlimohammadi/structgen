@@ -20,7 +20,7 @@ extract-values: ## Extract values.yaml files from Helm charts.
 
 .PHONY: gen
 gen: extract-values ## Generate Go code from values.yaml files.
-	@go run generator.go -files=${CILIUM_FILE_NAME}_values.yaml,${RAWFILE_CSI_FILE_NAME}_values.yaml -pkg=${GO_PACKAGE_NAME} -out-dir=${TARGET_DIR} -advanced-types=true -unsafe-field=true
+	@../bin/structgen -files=${CILIUM_FILE_NAME}_values.yaml,${RAWFILE_CSI_FILE_NAME}_values.yaml -pkg=${GO_PACKAGE_NAME} -out-dir=${TARGET_DIR} -advanced-types=true -type=yaml
 
 .PHONY: clean
 clean: clean-yaml-values clean-gen-values ## Clean up.

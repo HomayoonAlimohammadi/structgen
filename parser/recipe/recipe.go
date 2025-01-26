@@ -1,17 +1,20 @@
 package recipe
 
 import (
+	"embed"
 	"fmt"
 	"html/template"
 	"os"
-
-	"github.com/HomayoonAlimohammadi/structgen/parser/utils"
+	"os/exec"
+	"strings"
 )
+
+//go:embed struct.go.tmpl
+var tmplFS embed.FS
 
 // StructMeta represents a struct in a Go file
 type StructMeta struct {
 	// IsRoot is true if the struct is the root struct of the file.
-	// This struct represents the complete set of values of the input file.
 	IsRoot bool
 	// Name is the Name of the struct.
 	Name string
@@ -50,8 +53,6 @@ type StructsRecipe struct {
 	// RootStructName is the name of the root struct.
 	RootStructName string
 
-	// GenerateCmd is the command that generated the file.
-	GenerateCmd string
 	// GenerateDate is the date the file was generated.
 	GenerateDate string
 	// ToolName is the name of the tool that generated the file.
@@ -66,10 +67,10 @@ type StructsRecipe struct {
 }
 
 // GenerateGoFile generates a Go file from a recipe
-func (r *StructsRecipe) GenerateGoFile(templateFilePath string) error {
-	tmpl, err := template.New(templateFilePath).ParseFiles(templateFilePath)
+func (r *StructsRecipe) GenerateGoFile() error {
+	tmpl, err := template.New("struct.go.tmpl").ParseFS(tmplFS, "struct.go.tmpl")
 	if err != nil {
-		return fmt.Errorf("failed to parse template file %s: %w", templateFilePath, err)
+		return fmt.Errorf("failed to parse template: %w", err)
 	}
 
 	var out *os.File
@@ -86,8 +87,33 @@ func (r *StructsRecipe) GenerateGoFile(templateFilePath string) error {
 		return fmt.Errorf("failed to execute template: %w", err)
 	}
 
-	if err := utils.FormatGoFile(r.OutputFilePath); err != nil {
+	if err := formatGoFile(r.OutputFilePath); err != nil {
 		return fmt.Errorf("failed to format Go file %s: %w", r.OutputFilePath, err)
+	}
+
+	return nil
+}
+
+// formatGoFile formats a Go file using gofmt
+func formatGoFile(filePath string) error {
+	if err := runCmd("gofmt", "-w", filePath); err != nil {
+		return fmt.Errorf("failed to format %s: %w", filePath, err)
+	}
+	return nil
+}
+
+// runCmd runs a command
+func runCmd(parts ...string) error {
+	if len(parts) == 0 {
+		return fmt.Errorf("no command provided")
+	}
+
+	cmd := exec.Command(parts[0], parts[1:]...)
+	var out strings.Builder
+	cmd.Stdout = &out
+	cmd.Stderr = &out
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to run command: %w\nOutput: %s", err, out.String())
 	}
 
 	return nil

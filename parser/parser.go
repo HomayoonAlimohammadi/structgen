@@ -17,8 +17,6 @@ const (
 type ParserOptions struct {
 	// AdvancedTypesEnabled is true if advanced types are enabled.
 	AdvancedTypesEnabled bool
-	// GenerateCmd is the command that generated the file.
-	GenerateCmd string
 	// PkgName is the name of the package.
 	PkgName string
 	// OutputDir is the directory where the generated files will be saved.

@@ -17,13 +17,6 @@ func WithAdvancedTypesEnabled() Option {
 	})
 }
 
-func WithGenerateCmd(generateCmd string) Option {
-	return optionFunc(func(r *Parser) error {
-		r.generateCmd = generateCmd
-		return nil
-	})
-}
-
 func WithPkgName(pkgName string) Option {
 	return optionFunc(func(r *Parser) error {
 		r.pkgName = pkgName
